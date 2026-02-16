@@ -1,26 +1,24 @@
-FROM node:20-alpine
+# 1. Use Debian (Slim) instead of Alpine
+# This fixes the missing 'venv' and 'ensurepip' modules
+FROM node:20-slim
 
 ARG N8N_VERSION=2.7.4
 
-# 1. Install System Dependencies (Keep these!)
-# We add python3 and py3-pip here so they stay in the final image
-RUN apk add --update graphicsmagick tzdata python3 py3-pip
+# 2. Install System Dependencies
+# 'python3-venv' is a separate package in Debian, we MUST install it explicitly
+RUN apt-get update && \
+    apt-get install -y python3 python3-venv python3-pip graphicsmagick && \
+    rm -rf /var/lib/apt/lists/*
 
 USER root
 
-# 2. Install Build Dependencies (Delete these later)
-# We only put 'build-base' here, NOT python3
-RUN apk --update add --virtual build-dependencies build-base && \
-    npm_config_user=root npm install --location=global n8n@${N8N_VERSION} && \
-    apk del build-dependencies
+# 3. Install n8n
+RUN npm install -g n8n@${N8N_VERSION}
 
 WORKDIR /data
 
-EXPOSE $PORT
-
-ENV N8N_USER_ID=root
-
-# 3. Explicitly tell n8n where Python is (Optional but recommended)
+# 4. Explicitly tell n8n where python is
 ENV N8N_PYTHON_BINARY=/usr/bin/python3
 
-CMD export N8N_PORT=$PORT && n8n start
+# 5. Start n8n
+CMD ["n8n", "start"]
