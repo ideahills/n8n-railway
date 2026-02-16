@@ -1,18 +1,9 @@
-
-FROM node:20-slim
-
-ARG N8N_VERSION=2.7.4
-
-RUN apt-get update && \
-    apt-get install -y python3 python3-venv python3-pip graphicsmagick && \
-    rm -rf /var/lib/apt/lists/*
+FROM n8nio/n8n:2.7.4
 
 USER root
 
-RUN npm install -g n8n@${N8N_VERSION}
+RUN apk add --update --no-cache python3 py3-pip
 
-WORKDIR /data
+RUN rm -rf /var/cache/apk/*
 
-ENV N8N_PYTHON_BINARY=/usr/bin/python3
-
-CMD ["n8n", "start"]
+USER node
