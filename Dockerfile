@@ -8,11 +8,9 @@ RUN apt-get update && \
 
 RUN npm install -g n8n@${N8N_VERSION}
 
-RUN mkdir -p /home/node/.n8n && \
-    chown -R node:node /home/node/.n8n
-
-USER node
-
+ENV HOME=/home/node
 ENV N8N_PYTHON_BINARY=/usr/bin/python3
+
+USER root
 
 CMD ["n8n", "start"]
